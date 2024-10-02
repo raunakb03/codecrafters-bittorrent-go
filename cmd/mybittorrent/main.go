@@ -1,38 +1,45 @@
 package main
 
 import (
-    "encoding/json"
-    "fmt"
-    "os"
-    "strconv"
-    "unicode"
-    // bencode "github.com/jackpal/bencode-go" // Available if you need it!
+	"encoding/json"
+	"fmt"
+	"os"
+	"strconv"
+	"unicode"
+	// bencode "github.com/jackpal/bencode-go" // Available if you need it!
 )
 
 var _ = json.Marshal
 
-func decodeBencode(bencodedString string) (interface{}, error) {
-    if unicode.IsDigit(rune(bencodedString[0])) {
-        var firstColonIndex int
+func handleBencode(bencodedString string) (interface{}, error) {
+    var firstColenIndex int =-1 
 
-        for i := 0; i < len(bencodedString); i++ {
-            if bencodedString[i] == ':' {
-                firstColonIndex = i
-                break
-            }
+    for i:=0; i<len(bencodedString); i++ {
+        if bencodedString[i] == ':' {
+            firstColenIndex = i
+            break
         }
-
-        lengthStr := bencodedString[:firstColonIndex]
-
-        length, err := strconv.Atoi(lengthStr)
-        if err != nil {
-            return "", err
-        }
-
-        return bencodedString[firstColonIndex+1 : firstColonIndex+1+length], nil
-    } else {
-        return "", fmt.Errorf("Only strings are supported at the moment")
     }
+
+    // decode a number
+    if firstColenIndex == -1 && bencodedString[0]=='i' {
+        numString := bencodedString[1:len(bencodedString)-1]
+        decodedNumber, err := strconv.Atoi(numString)
+        if err != nil {
+            return "", fmt.Errorf("Input string does not represent a number")
+        }
+        return decodedNumber , nil
+    }
+
+    stringLen := bencodedString[:firstColenIndex]
+
+    if !unicode.IsDigit(rune(stringLen[0])) {
+        return "", fmt.Errorf("bencoded string length can only be a number")
+    }
+
+    encodedString :=bencodedString[firstColenIndex+1:]
+
+    return encodedString, nil
 }
 
 func main() {
@@ -42,14 +49,15 @@ func main() {
     if command == "decode" {
         bencodedValue := os.Args[2]
 
-        decoded, err := decodeBencode(bencodedValue)
+        decodedString, err := handleBencode(bencodedValue)
         if err != nil {
-            fmt.Println(err)
+            fmt.Println("Error while decoding the string ", err)
             return
         }
+        jsonOutput, _ := json.Marshal(decodedString)
 
-        jsonOutput, _ := json.Marshal(decoded)
         fmt.Println(string(jsonOutput))
+
     } else {
         fmt.Println("Unknown command: " + command)
         os.Exit(1)
