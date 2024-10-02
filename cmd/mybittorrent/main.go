@@ -1,12 +1,12 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
-	"strconv"
-	"unicode"
-	// bencode "github.com/jackpal/bencode-go" // Available if you need it!
+    "encoding/json"
+    "fmt"
+    "os"
+    "strconv"
+    "unicode"
+    // bencode "github.com/jackpal/bencode-go" // Available if you need it!
 )
 
 var _ = json.Marshal
