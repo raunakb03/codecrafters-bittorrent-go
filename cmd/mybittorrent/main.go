@@ -9,52 +9,9 @@ import (
 )
 
 var _ = json.Marshal
-var err error
-
-func handleBencodedList(bencodedString string) ([]interface{}, error) {
-    var decodedList []interface{};
-
-    ind := 1
-    for ind < len(bencodedString)-1 {
-        var currString string
-        if bencodedString[ind] == 'i' {
-            for bencodedString[ind] != 'e' {
-                currString += string(bencodedString[ind]);
-                ind++
-            }
-            currString += "e"
-            ind++
-        } else {
-            var currLen int
-            var nextStringLen int
-            for i:= ind; i<len(bencodedString); i++ {
-                if bencodedString[i] == ':' {
-                    currLen = i-ind
-                    nextStringLen, err = strconv.Atoi(bencodedString[ind:ind+currLen])
-                }
-            }
-            currString = bencodedString[ind:ind+currLen+1]
-            ind += currLen+1
-            currString +=  bencodedString[ind:ind+nextStringLen];
-            ind+= nextStringLen
-        }
-        decodedString ,err := handleBencode(currString)
-        if err != nil {
-            fmt.Println("Error while decoding the list")
-            return nil, err
-        }
-        decodedList = append(decodedList, decodedString);
-    }
-    return decodedList, nil
-}
 
 func handleBencode(bencodedString string) (interface{}, error) {
-    var firstColenIndex =-1
-
-    if bencodedString[0] == 'l' {
-        decodedList, err :=  handleBencodedList(bencodedString)
-        return decodedList, err
-    }
+    var firstColenIndex int =-1 
 
     for i:=0; i<len(bencodedString); i++ {
         if bencodedString[i] == ':' {
@@ -97,11 +54,6 @@ func main() {
             return
         }
         jsonOutput, _ := json.Marshal(decodedString)
-
-        if string(jsonOutput) == "null" {
-            fmt.Println("[]")
-            return
-        }
 
         fmt.Println(string(jsonOutput))
 
