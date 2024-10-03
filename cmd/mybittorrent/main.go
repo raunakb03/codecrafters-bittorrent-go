@@ -98,6 +98,11 @@ func main() {
         }
         jsonOutput, _ := json.Marshal(decodedString)
 
+        if string(jsonOutput) == "null" {
+            fmt.Println("[]")
+            return
+        }
+
         fmt.Println(string(jsonOutput))
 
     } else {
