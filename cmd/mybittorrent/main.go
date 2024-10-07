@@ -21,6 +21,8 @@ func decode(str string, index int) (interface{}, int, error) {
         return decodeNumber(str, index)
     case str[index] >= '0' && str[index] <= '9':
         return decodeString(str, index)
+    case str[index] == 'd':
+        return decodeDict(str, index)
     default:
         return nil, index, fmt.Errorf("Unexpected error value %q", str[index])
     }
@@ -87,6 +89,34 @@ func decodeList(str string, index int) (interface{}, int, error) {
     }
 
     return list, index+1, nil
+}
+
+func decodeDict(str string, index int) (interface{}, int, error) {
+    index++;
+
+    dict := make(map[string]interface{})
+    for {
+        if index>=len(str) {
+            return nil, index, fmt.Errorf("bad dict")
+        }
+
+        if str[index] == 'e' {
+            break
+        }
+
+        key, i, err := decode(str, index)
+        index = i
+        if err != nil {
+            return nil, i, err
+        }
+        if index>=len(str) {
+            return nil, index, fmt.Errorf("bad dict")
+        }
+        value , i, err := decode(str, index)
+        dict[key.(string)] = value
+        index = i
+    }
+    return dict, index+1, nil
 }
 
 func main() {
