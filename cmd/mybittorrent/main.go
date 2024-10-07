@@ -86,7 +86,7 @@ func decodeList(str string, index int) (interface{}, int, error) {
         list = append(list, x)
     }
 
-    return list, index, nil
+    return list, index+1, nil
 }
 
 func main() {
